@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Gestione Laboratorio - {{ laboratory.name }}</title>
+    <script>
+        function toggleComputer(computerId) {
+            const button = document.getElementById(`toggle-btn-${computerId}`);
+            const currentStatus = button.getAttribute("data-status");
+            const newAction = currentStatus === "blocked" ? "unblock" : "block";
+        
+            fetch(`/connection/toggle_computer/${computerId}/${newAction}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Aggiorna il bottone
+                    button.setAttribute("data-status", newAction === "block" ? "blocked" : "unblocked");
+                    button.style.backgroundColor = newAction === "block" ? "red" : "green";
+                    button.textContent = newAction === "block" ? "Sblocca" : "Blocca";
+                    alert(`${data.computer} è stato ${data.status}`);
+                })
+                .catch(error => {
+                    console.error("Errore:", error);
+                    alert("Si è verificato un errore. Riprova.");
+                });
+        }
+       
+        function toggleAllComputers(laboratoryId) {
+            const button = document.getElementById("toggle-all-btn");
+            const currentStatus = button.getAttribute("data-status");
+            const newAction = currentStatus === "unblocked" ? "block" : "unblock";
+        
+            fetch(`/connection/toggle_all/${laboratoryId}/${newAction}/`)
+                .then(response => response.json())
+                .then(data => {
+                    // Aggiorna lo stato del pulsante
+                    button.setAttribute("data-status", newAction === "block" ? "blocked" : "unblocked");
+                    button.style.backgroundColor = newAction === "block" ? "green" : "red";
+                    button.textContent = newAction === "block" ? "Sblocca Tutti" : "Blocca Tutti";
+        
+                    // Aggiorna lo stato di tutti i singoli computer
+                    data.computers.forEach(computer => {
+                        const compButton = document.getElementById(`toggle-btn-${computer.id}`);
+                        compButton.setAttribute("data-status", computer.status);
+                        compButton.style.backgroundColor = computer.status === "blocked" ? "red" : "green";
+                        compButton.textContent = computer.status === "blocked" ? "Sblocca" : "Blocca";
+                    });
+        
+                    alert(data.message);
+                })
+                .catch(error => {
+                    console.error("Errore:", error);
+                    alert("Si è verificato un errore. Riprova.");
+                });
+        }
+        
+    </script>
+</head>
+<body>
+    <h1>Gestione Laboratorio - {{ laboratory.name }}</h1>
+    <button 
+    id="toggle-all-btn" 
+    data-status="unblocked" 
+    onclick="toggleAllComputers({{ laboratory.id }})"
+    style="background-color: red; color: white;">
+    Blocca Tutti
+    </button>
+    <ul>
+        {% for computer in computers %}
+            <li>
+                {{ computer.name }} ({{ computer.mac_address }})
+                <button 
+                    id="toggle-btn-{{ computer.id }}" 
+                    data-status="{{ computer.status }}" 
+                    onclick="toggleComputer({{ computer.id }})"
+                    style="background-color: {{ computer.color }}; color: white;">
+                    {{ computer.button_text }}
+                </button>
+            </li>
+        {% endfor %}
+    </ul>
+    <a href="/connection">Torna alla selezione del laboratorio</a>
+</body>
+</html>

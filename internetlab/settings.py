@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-+*%47wsfeel3wb4o2tv9o95bu7j^4dc3dnwmbn=%4(-6=mzu5%
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+import os
 
 # Application definition
 
@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'connection'
 ]
 
 MIDDLEWARE = [
@@ -54,7 +55,7 @@ ROOT_URLCONF = 'internetlab.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'connection/templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
