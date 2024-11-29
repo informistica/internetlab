@@ -2,9 +2,11 @@
 # views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
+from django.contrib import messages
 from .models import Laboratory, Computer
 from .forms import LaboratorySelectionForm
 import subprocess
+import openpyxl
 
 def laboratory_selection(request):
     if request.method == "POST":
@@ -59,3 +61,32 @@ def toggle_all_computers(request, laboratory_id, action):
         "message": message,
         "computers": [{"id": computer.id, "status": computer.status} for computer in computers]
     })
+
+def upload_computers(request):
+    if request.method == "POST" and request.FILES.get("file"):
+        file = request.FILES["file"]
+
+        try:
+            workbook = openpyxl.load_workbook(file)
+            sheet = workbook.active
+
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                laboratory_name, computer_name, mac_address = row
+
+                # Crea o recupera il laboratorio
+                laboratory, created = Laboratory.objects.get_or_create(name=laboratory_name)
+
+                # Crea o aggiorna il computer
+                Computer.objects.update_or_create(
+                    name=computer_name,
+                    laboratory=laboratory,
+                    defaults={"mac_address": mac_address},
+                )
+
+            messages.success(request, "I dati sono stati caricati con successo.")
+        except Exception as e:
+            messages.error(request, f"Errore durante il caricamento: {e}")
+        
+        return redirect("connection:upload_computers")
+
+    return render(request, "upload_computers.html")

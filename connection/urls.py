@@ -7,4 +7,5 @@ urlpatterns = [
     path('laboratory/<int:lab_id>/', views.manage_laboratory, name='manage_laboratory'),
     path('toggle_computer/<int:computer_id>/<str:action>/', views.toggle_computer, name='toggle_computer'),
     path("toggle_all/<int:laboratory_id>/<str:action>/", views.toggle_all_computers, name="toggle_all_computers"),
+    path("upload-computers/", views.upload_computers, name="upload_computers"),
 ]

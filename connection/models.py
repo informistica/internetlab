@@ -21,5 +21,5 @@ class Computer(models.Model):
 
 
     def __str__(self):
-        return f"{self.name} ({self.mac_address})"
+        return f"{self.name} ({self.mac_address}) ({self.laboratory})"
 
